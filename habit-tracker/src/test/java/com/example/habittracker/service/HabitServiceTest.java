@@ -1,6 +1,6 @@
 package com.example.habittracker.service;
 
-import com.example.habittracker.model.Habit;
+/*import com.example.habittracker.model.Habit;
 import com.example.habittracker.repository.HabitRepository;
 import com.example.habittracker.exception.HabitNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +15,23 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;*/
+
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.boot.test.context.SpringBootTest;
+import com.example.habittracker.model.Habit;
+import com.example.habittracker.repository.HabitRepository;
+import com.example.habittracker.exception.HabitNotFoundException;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 @SpringBootTest
 public class HabitServiceTest {
