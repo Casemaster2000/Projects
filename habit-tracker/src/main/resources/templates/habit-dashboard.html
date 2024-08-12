@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Habit Tracker Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f0f0; }
+        .dashboard { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .progress-bar { background-color: #ddd; border-radius: 5px; height: 20px; margin-bottom: 20px; }
+        .progress { background-color: #4CAF50; height: 100%; border-radius: 5px; }
+        .habits { display: flex; flex-wrap: wrap; }
+        .habit-card { background-color: white; border-radius: 5px; padding: 15px; margin: 10px; width: calc(50% - 20px); }
+        .habit-actions button { background-color: #4CAF50; border: none; color: white; padding: 5px 10px; cursor: pointer; margin-right: 5px; }
+        #createHabitForm { background-color: white; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+        #createHabitForm input, #createHabitForm button { margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <h1>Habit Tracker Dashboard</h1>
+        
+        <div class="progress-bar">
+            <div class="progress" th:style="${'width: ' + totalEngagement * 100 / 500 + '%;'}"></div>
+        </div>
+        
+        <p>Total Engagement: <span th:text="${totalEngagement}"></span> / 500</p>
+
+        <div id="createHabitForm">
+            <h2>Create New Habit</h2>
+            <input type="text" id="habitName" placeholder="Habit Name" required>
+            <input type="text" id="habitDescription" placeholder="Description">
+            <input type="number" id="habitTargetFrequency" placeholder="Target Frequency" required>
+            <button onclick="createHabit()">Create Habit</button>
+        </div>
+        
+        <div class="habits">
+            <div class="habit-card" th:each="habit : ${habits}">
+                <h3 th:text="${habit.name}"></h3>
+                <p th:text="${habit.description}"></p>
+                <div class="habit-progress">
+                    Progress: <span th:text="${habit.currentStreak}"></span> /
+                    <span th:text="${habit.targetFrequency}"></span>
+                </div>
+                <div class="habit-actions">
+                    <button th:onclick="'completeHabit(' + ${habit.id} + ')'">Complete</button>
+                    <button th:onclick="'editHabit(' + ${habit.id} + ')'">Edit</button>
+                    <button th:onclick="'deleteHabit(' + ${habit.id} + ')'">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script th:inline="javascript">
+        function createHabit() {
+            const name = document.getElementById('habitName').value;
+            const description = document.getElementById('habitDescription').value;
+            const targetFrequency = document.getElementById('habitTargetFrequency').value;
+            
+            fetch('/habits/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, description, targetFrequency })
+            })
+            .then(response => response.json())
+            .then(() => location.reload())
+            .catch(error => console.error('Error:', error));
+        }
+
+        function completeHabit(id) {
+            fetch(`/habits/complete/${id}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(() => location.reload())
+                .catch(error => console.error('Error:', error));
+        }
+
+        function editHabit(id) {
+            const newName = prompt("Enter new name for the habit:");
+            if (newName) {
+                fetch(`/habits/edit/${id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: newName })
+                })
+                .then(response => response.json())
+                .then(() => location.reload())
+                .catch(error => console.error('Error:', error));
+            }
+        }
+
+        function deleteHabit(id) {
+            if (confirm("Are you sure you want to delete this habit?")) {
+                fetch(`/habits/delete/${id}`, { method: 'POST' })
+                    .then(() => location.reload())
+                    .catch(error => console.error('Error:', error));
+            }
+        }
+    </script>
+</body>
+</html>

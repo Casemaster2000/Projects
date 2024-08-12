@@ -60,15 +60,15 @@ public class HabitService {
         LocalDate today = LocalDate.now();
         
         if (habit.getLastCompletedDate() == null || !habit.getLastCompletedDate().equals(today)) {
-            habit.setProgressToday(1);
             habit.setCurrentStreak(habit.getCurrentStreak() + 1);
+            habit.setProgressToday(1);
             if (habit.getCurrentStreak() > habit.getLongestStreak()) {
                 habit.setLongestStreak(habit.getCurrentStreak());
             }
         } else {
             habit.setProgressToday(habit.getProgressToday() + 1);
         }
-
+    
         habit.setLastCompletedDate(today);
         return habitRepository.save(habit);
     }

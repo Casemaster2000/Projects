@@ -109,15 +109,27 @@ public class HabitServiceTest {
 
     @Test
     void testCompleteHabit() {
+        testHabit.setCurrentStreak(0);
+        testHabit.setLongestStreak(0);
+        testHabit.setProgressToday(0);
+        testHabit.setLastCompletedDate(null);  // Set to null to simulate first completion
+    
         when(habitRepository.findById(1L)).thenReturn(Optional.of(testHabit));
-        when(habitRepository.save(any(Habit.class))).thenReturn(testHabit);
-
+        when(habitRepository.save(any(Habit.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    
         Habit completedHabit = habitService.completeHabit(1L);
+        
         assertNotNull(completedHabit);
         assertEquals(1, completedHabit.getCurrentStreak());
         assertEquals(1, completedHabit.getLongestStreak());
         assertEquals(1, completedHabit.getProgressToday());
         assertEquals(LocalDate.now(), completedHabit.getLastCompletedDate());
+    
+        // Test completing the same habit again on the same day
+        Habit completedAgain = habitService.completeHabit(1L);
+        assertEquals(1, completedAgain.getCurrentStreak());
+        assertEquals(1, completedAgain.getLongestStreak());
+        assertEquals(2, completedAgain.getProgressToday());
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.example.habittracker.service.HabitService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @Controller
 @RequestMapping("/habits")
@@ -18,43 +19,40 @@ public class HabitWebController {
 
     @GetMapping
     public String listHabits(Model model) {
-        model.addAttribute("habits", habitService.getAllHabits());
-        return "habit-list";
-    }
-
-    @GetMapping("/create")
-    public String createHabitForm(Model model) {
-        model.addAttribute("habit", new Habit());
-        return "habit-form";
+        List<Habit> habits = habitService.getAllHabits();
+        int totalEngagement = habits.stream().mapToInt(Habit::getCurrentStreak).sum();
+        model.addAttribute("habits", habits);
+        model.addAttribute("totalEngagement", totalEngagement);
+        return "habit-dashboard";
     }
 
     @PostMapping("/create")
-    public String createHabit(@ModelAttribute Habit habit) {
-        habitService.createHabit(habit);
-        return "redirect:/habits";
+    @ResponseBody
+    public Habit createHabit(@RequestBody Habit habit) {
+        return habitService.createHabit(habit);
     }
 
-    @GetMapping("/edit/{id}")
-    public String editHabitForm(@PathVariable Long id, Model model) {
-        model.addAttribute("habit", habitService.getHabitById(id));
-        return "habit-form";
+    @PostMapping("/complete/{id}")
+    @ResponseBody
+    public Habit completeHabit(@PathVariable Long id) {
+        return habitService.completeHabit(id);
     }
 
     @PostMapping("/edit/{id}")
-    public String updateHabit(@PathVariable Long id, @ModelAttribute Habit habit) {
-        habitService.updateHabit(id, habit);
-        return "redirect:/habits";
+    @ResponseBody
+    public Habit editHabit(@PathVariable Long id, @RequestBody Habit habitDetails) {
+        return habitService.updateHabit(id, habitDetails);
     }
 
-    @GetMapping("/delete/{id}")
-    public String deleteHabit(@PathVariable Long id) {
+    @PostMapping("/delete/{id}")
+    @ResponseBody
+    public void deleteHabit(@PathVariable Long id) {
         habitService.deleteHabit(id);
-        return "redirect:/habits";
     }
 
-    @GetMapping("/complete/{id}")
-    public String completeHabit(@PathVariable Long id) {
-        habitService.completeHabit(id);
-        return "redirect:/habits";
+    @ExceptionHandler(Exception.class)
+    public String handleError(Exception ex, Model model) {
+        model.addAttribute("errorMessage", ex.getMessage());
+        return "error";
     }
 }
