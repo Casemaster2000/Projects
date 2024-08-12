@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Habit Tracker</title>
+</head>
+<body>
+    <h1>My Habits</h1>
+    <a href="/habits/create">Create New Habit</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Target Frequency</th>
+                <th>Current Streak</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="habit : ${habits}">
+                <td th:text="${habit.name}"></td>
+                <td th:text="${habit.description}"></td>
+                <td th:text="${habit.targetFrequency}"></td>
+                <td th:text="${habit.currentStreak}"></td>
+                <td>
+                    <a th:href="@{/habits/edit/{id}(id=${habit.id})}">Edit</a>
+                    <a th:href="@{/habits/delete/{id}(id=${habit.id})}">Delete</a>
+                    <a th:href="@{/habits/complete/{id}(id=${habit.id})}">Complete</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
