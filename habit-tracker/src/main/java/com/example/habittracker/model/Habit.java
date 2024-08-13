@@ -30,6 +30,10 @@ public class Habit {
     @Max(value = 100, message = "Target frequency must be at most 100")
     private Integer targetFrequency;
 
+    @Min(value = 1, message = "Engagement points must be at least 1")
+    @Max(value = 100, message = "Engagement points must be at most 100")
+    private Integer engagementPoints;
+
     @Min(value = 0, message = "Current streak cannot be negative")
     private Integer currentStreak;
 
@@ -120,6 +124,14 @@ public class Habit {
 
     public void setProgressToday(Integer progressToday) {
         this.progressToday = progressToday;
+    }
+
+    public Integer getEngagementPoints() {
+        return engagementPoints;
+    }
+
+    public void setEngagementPoints(Integer engagementPoints) {
+        this.engagementPoints = engagementPoints;
     }
 
     @Override

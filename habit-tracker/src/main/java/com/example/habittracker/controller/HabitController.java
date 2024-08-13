@@ -1,5 +1,6 @@
 package com.example.habittracker.controller;
 
+import com.example.habittracker.exception.HabitNotFoundException;
 import com.example.habittracker.model.Habit;
 import com.example.habittracker.service.HabitService;
 import jakarta.validation.Valid;
@@ -31,6 +32,11 @@ public class HabitController {
     @GetMapping("/{id}")
     public ResponseEntity<Habit> getHabitById(@PathVariable Long id) {
         return ResponseEntity.ok(habitService.getHabitById(id));
+    }
+
+    @ExceptionHandler(HabitNotFoundException.class)
+    public ResponseEntity<String> handleHabitNotFound(HabitNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
     @PostMapping

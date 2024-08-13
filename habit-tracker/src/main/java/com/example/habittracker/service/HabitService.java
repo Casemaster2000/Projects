@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
-
 @Service
 public class HabitService {
 
@@ -34,24 +33,10 @@ public class HabitService {
         habit.setCurrentStreak(0);
         habit.setLongestStreak(0);
         habit.setProgressToday(0);
-        return habitRepository.save(habit);
-    }
-
-    @Transactional
-    public Habit updateHabit(Long id, Habit habitDetails) {
-        Habit habit = getHabitById(id);
-        habit.setName(habitDetails.getName());
-        habit.setDescription(habitDetails.getDescription());
-        habit.setTargetFrequency(habitDetails.getTargetFrequency());
-        return habitRepository.save(habit);
-    }
-
-
-    public void deleteHabit(Long id) {
-        if (!habitRepository.existsById(id)) {
-            throw new HabitNotFoundException(id);
+        if (habit.getEngagementPoints() == null) {
+            habit.setEngagementPoints(1); // Default value if not provided
         }
-        habitRepository.deleteById(id);
+        return habitRepository.save(habit);
     }
 
     @Transactional
@@ -73,11 +58,30 @@ public class HabitService {
         return habitRepository.save(habit);
     }
 
-    public List<Habit> searchHabitsByName(String name) {
-        return habitRepository.findByNameContainingIgnoreCase(name);
+    @Transactional
+    public Habit updateHabit(Long id, Habit habitDetails) {
+        Habit habit = getHabitById(id);
+        habit.setName(habitDetails.getName());
+        habit.setDescription(habitDetails.getDescription());
+        habit.setTargetFrequency(habitDetails.getTargetFrequency());
+        habit.setEngagementPoints(habitDetails.getEngagementPoints());
+        return habitRepository.save(habit);
     }
 
-    public List<Habit> getHabitsByMinimumStreak(Integer streak) {
-        return habitRepository.findByCurrentStreakGreaterThanEqual(streak);
+    public void deleteHabit(Long id) {
+        if (!habitRepository.existsById(id)) {
+            throw new HabitNotFoundException(id);
+        }
+        habitRepository.deleteById(id);
     }
+
+    public int calculateTotalEngagement() {
+        return habitRepository.findAll().stream()
+                .mapToInt(habit -> {
+                    Integer engagementPoints = habit.getEngagementPoints();
+                    return habit.getCurrentStreak() * (engagementPoints != null ? engagementPoints : 1);
+                })
+                .sum();
+    }
+
 }

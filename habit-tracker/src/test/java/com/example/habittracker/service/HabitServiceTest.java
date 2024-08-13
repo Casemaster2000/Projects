@@ -115,7 +115,11 @@ public class HabitServiceTest {
         testHabit.setLastCompletedDate(null);  // Set to null to simulate first completion
     
         when(habitRepository.findById(1L)).thenReturn(Optional.of(testHabit));
-        when(habitRepository.save(any(Habit.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(habitRepository.save(any(Habit.class))).thenAnswer(invocation -> {
+            Habit savedHabit = invocation.getArgument(0);
+            savedHabit.setId(1L);  // Ensure the ID is set
+            return savedHabit;
+        });
     
         Habit completedHabit = habitService.completeHabit(1L);
         

@@ -1,27 +1,175 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <title>Habit Tracker Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" />
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f0f0f0; }
-        .dashboard { max-width: 800px; margin: 0 auto; padding: 20px; }
-        .progress-bar { background-color: #ddd; border-radius: 5px; height: 20px; margin-bottom: 20px; }
-        .progress { background-color: #4CAF50; height: 100%; border-radius: 5px; }
-        .habits { display: flex; flex-wrap: wrap; }
-        .habit-card { background-color: white; border-radius: 5px; padding: 15px; margin: 10px; width: calc(50% - 20px); }
-        .habit-actions button { background-color: #4CAF50; border: none; color: white; padding: 5px 10px; cursor: pointer; margin-right: 5px; }
-        #createHabitForm { background-color: white; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
-        #createHabitForm input, #createHabitForm button { margin: 5px 0; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1e1e1e;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .dashboard {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .top-bar {
+            background-color: #2c2c2c;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+
+        .top-bar button {
+            background-color: #4a4a4a;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            margin-right: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .top-bar button.active {
+            background-color: #5cb85c;
+        }
+
+        .progress-bar {
+            background-color: #333;
+            border-radius: 10px;
+            height: 30px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .progress {
+            background-color: #5cb85c;
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease-in-out;
+        }
+
+        .milestone {
+            position: absolute;
+            top: -10px;
+            font-size: 20px;
+            color: #ffd700;
+        }
+
+        .habits {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .habit-card {
+            background-color: #2c2c2c;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            flex: 1 1 calc(50% - 20px);
+            min-width: 250px;
+        }
+
+        .habit-actions button {
+            background-color: #5cb85c;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .habit-actions button:hover {
+            background-color: #4cae4c;
+        }
+
+        #createHabitForm {
+            background-color: #2c2c2c;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        #createHabitForm input,
+        #createHabitForm button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #4a4a4a;
+            border-radius: 5px;
+            background-color: #333;
+            color: #fff;
+        }
+
+        #createHabitForm button {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .habit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .habit-streak {
+            font-size: 0.9em;
+            color: #ffd700;
+        }
+
+        .habit-progress {
+            margin: 10px 0;
+        }
+
+        .delete-btn {
+            background-color: #d9534f !important;
+        }
+
+        .delete-btn:hover {
+            background-color: #c9302c !important;
+        }
+
+        .refresh-timer {
+            text-align: center;
+            font-size: 0.9em;
+            color: #aaa;
+            margin-top: 20px;
+        }
     </style>
 </head>
+
 <body>
     <div class="dashboard">
+        <div class="top-bar">
+            <button class="active">Daily Habits</button>
+            <button>Weekly Goals</button>
+            <button>Challenges</button>
+        </div>
+
         <h1>Habit Tracker Dashboard</h1>
-        
+
         <div class="progress-bar">
             <div class="progress" th:style="${'width: ' + totalEngagement * 100 / 500 + '%;'}"></div>
+            <span class="milestone" style="left: 20%">100</span>
+            <span class="milestone" style="left: 40%">200</span>
+            <span class="milestone" style="left: 60%">300</span>
+            <span class="milestone" style="left: 80%">400</span>
+            <span class="milestone" style="left: 100%">500</span>
         </div>
-        
+
+
         <p>Total Engagement: <span th:text="${totalEngagement}"></span> / 500</p>
 
         <div id="createHabitForm">
@@ -29,40 +177,56 @@
             <input type="text" id="habitName" placeholder="Habit Name" required>
             <input type="text" id="habitDescription" placeholder="Description">
             <input type="number" id="habitTargetFrequency" placeholder="Target Frequency" required>
+            <input type="number" id="habitEngagementPoints" placeholder="Engagement Points" required>
             <button onclick="createHabit()">Create Habit</button>
         </div>
-        
+
         <div class="habits">
             <div class="habit-card" th:each="habit : ${habits}">
-                <h3 th:text="${habit.name}"></h3>
+                <div class="habit-header">
+                    <h3 th:text="${habit.name}"></h3>
+                    <span class="habit-streak">Streak: <span th:text="${habit.currentStreak}"></span></span>
+                </div>
                 <p th:text="${habit.description}"></p>
                 <div class="habit-progress">
                     Progress: <span th:text="${habit.currentStreak}"></span> /
                     <span th:text="${habit.targetFrequency}"></span>
+                    <div class="progress-bar">
+                        <div class="progress"
+                            th:style="${'width: ' + habit.currentStreak * 100 / habit.targetFrequency + '%;'}"></div>
+                    </div>
                 </div>
+                <p>Engagement Points: <span th:text="${habit.engagementPoints}"></span></p>
                 <div class="habit-actions">
-                    <button th:onclick="'completeHabit(' + ${habit.id} + ')'">Complete</button>
-                    <button th:onclick="'editHabit(' + ${habit.id} + ')'">Edit</button>
-                    <button th:onclick="'deleteHabit(' + ${habit.id} + ')'">Delete</button>
+                    <button th:onclick="'completeHabit(' + ${habit.id} + ')'"><i class="fas fa-check"></i>
+                        Complete</button>
+                    <button th:onclick="'editHabit(' + ${habit.id} + ')'"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="delete-btn" th:onclick="'deleteHabit(' + ${habit.id} + ')'"><i
+                            class="fas fa-trash"></i> Delete</button>
                 </div>
             </div>
         </div>
+
+        <div class="refresh-timer">
+            Refreshes in <span id="refreshTime">24:00:00</span>
+        </div>
     </div>
-    
+
     <script th:inline="javascript">
         function createHabit() {
             const name = document.getElementById('habitName').value;
             const description = document.getElementById('habitDescription').value;
             const targetFrequency = document.getElementById('habitTargetFrequency').value;
-            
+            const engagementPoints = document.getElementById('habitEngagementPoints').value;
+
             fetch('/habits/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, description, targetFrequency })
+                body: JSON.stringify({ name, description, targetFrequency, engagementPoints })
             })
-            .then(response => response.json())
-            .then(() => location.reload())
-            .catch(error => console.error('Error:', error));
+                .then(response => response.json())
+                .then(() => location.reload())
+                .catch(error => console.error('Error:', error));
         }
 
         function completeHabit(id) {
@@ -73,16 +237,28 @@
         }
 
         function editHabit(id) {
-            const newName = prompt("Enter new name for the habit:");
-            if (newName) {
+            const habit = habits.find(h => h.id === id);
+            if (!habit) return;
+
+            const newName = prompt("Enter new name for the habit:", habit.name);
+            const newDescription = prompt("Enter new description for the habit:", habit.description);
+            const newTargetFrequency = prompt("Enter new target frequency for the habit:", habit.targetFrequency);
+            const newEngagementPoints = prompt("Enter new engagement points for the habit:", habit.engagementPoints);
+
+            if (newName && newDescription && newTargetFrequency && newEngagementPoints) {
                 fetch(`/habits/edit/${id}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: newName })
+                    body: JSON.stringify({
+                        name: newName,
+                        description: newDescription,
+                        targetFrequency: parseInt(newTargetFrequency),
+                        engagementPoints: parseInt(newEngagementPoints)
+                    })
                 })
-                .then(response => response.json())
-                .then(() => location.reload())
-                .catch(error => console.error('Error:', error));
+                    .then(response => response.json())
+                    .then(() => location.reload())
+                    .catch(error => console.error('Error:', error));
             }
         }
 
@@ -93,6 +269,22 @@
                     .catch(error => console.error('Error:', error));
             }
         }
+
+        // Refresh timer
+        function updateRefreshTimer() {
+            const now = new Date();
+            const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+            const timeLeft = endOfDay - now;
+            const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            document.getElementById('refreshTime').textContent =
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        setInterval(updateRefreshTimer, 1000);
+        updateRefreshTimer();
     </script>
 </body>
+
 </html>

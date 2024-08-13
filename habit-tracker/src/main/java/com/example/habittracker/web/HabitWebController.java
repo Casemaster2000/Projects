@@ -20,7 +20,7 @@ public class HabitWebController {
     @GetMapping
     public String listHabits(Model model) {
         List<Habit> habits = habitService.getAllHabits();
-        int totalEngagement = habits.stream().mapToInt(Habit::getCurrentStreak).sum();
+        int totalEngagement = habitService.calculateTotalEngagement();
         model.addAttribute("habits", habits);
         model.addAttribute("totalEngagement", totalEngagement);
         return "habit-dashboard";
